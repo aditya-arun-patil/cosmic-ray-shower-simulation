@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 from collections import defaultdict
 
-# =========================== Atmospheric Constants (Must Match Simulation) ===========================
+# ========================== Atmospheric Constants ===========================
 density_at_surface = 1.225e-3
 scale_height = 6.5e5
 SIMULATION_GROUND_DEPTH = density_at_surface * scale_height  # Should be ~796.25 g/cm^2
@@ -16,7 +16,7 @@ def plot_avg_longitudinal_profile(df, num_showers, filename):
     """Plots the average longitudinal profile with a clearly marked Xmax."""
     print("  - Analyzing longitudinal profile...")
     max_depth = df['atmospheric_depth'].max()
-    bins = np.linspace(0, max_depth * 1.05, 60)  # Increased bins for smoother curve
+    bins = np.linspace(0, max_depth * 1.05, 60)  
     bin_centers = (bins[:-1] + bins[1:]) / 2
 
     em_df = df[df['type'].isin(['electron', 'positron', 'photon'])]
@@ -29,7 +29,7 @@ def plot_avg_longitudinal_profile(df, num_showers, filename):
     avg_em_counts = em_counts / num_showers
     avg_mu_counts = mu_counts / num_showers
 
-    # --- Find and annotate the Shower Maximum (Xmax) ---
+    # Find and comment the Shower Maximum on the graph (Xmax)
     # We find the peak of the EM component as it defines the shower max
     if len(avg_em_counts) > 0 and np.max(avg_em_counts) > 0:
         xmax_index = np.argmax(avg_em_counts)
@@ -41,7 +41,7 @@ def plot_avg_longitudinal_profile(df, num_showers, filename):
     plt.figure(figsize=(12, 8))
     plt.style.use('seaborn-v0_8-whitegrid')
 
-    # Use step plots for histogram-like data
+    #  plotting histogram
     plt.step(bin_centers, avg_em_counts + avg_mu_counts, where='mid', color='black', label=f'All Particles',
              linewidth=2.5)
     plt.step(bin_centers, avg_em_counts, where='mid', color='blue', linestyle='--', label='EM Component (e±, γ)')
@@ -70,7 +70,7 @@ def plot_avg_longitudinal_profile(df, num_showers, filename):
     plt.xlim(left=0)
     plt.ylim(bottom=1e-2)
     plt.tick_params(axis='both', which='major', labelsize=12)
-    plt.savefig(filename, dpi=150)  # Higher DPI for better quality
+    plt.savefig(filename, dpi=150)  
     plt.close()
     print(f"  - Saved {filename}")
 
@@ -82,7 +82,7 @@ def plot_xmax_distribution(df, filename):
     for shower_id, shower_df in df.groupby('shower_id'):
         em_charged_df = shower_df[shower_df['type'].isin(['electron', 'positron'])]
         if not em_charged_df.empty:
-            counts, bin_edges = np.histogram(em_charged_df['atmospheric_depth'], bins=50)  # More bins for precision
+            counts, bin_edges = np.histogram(em_charged_df['atmospheric_depth'], bins=50)  
             if np.max(counts) > 0:
                 bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
                 xmax = bin_centers[np.argmax(counts)]
@@ -163,7 +163,7 @@ def plot_ground_particle_distribution(df, num_showers, filename):
 
 
 def plot_ground_energy_spectrum(df, filename):
-    """Plots a clearer energy spectrum of particles reaching ground level."""
+   
     print("  - Analyzing ground energy spectrum...")
     ground_df = df[df['atmospheric_depth'] >= SIMULATION_GROUND_DEPTH * 0.99].copy()
 
@@ -177,7 +177,7 @@ def plot_ground_energy_spectrum(df, filename):
         bins = np.logspace(np.log10(max(1e-4, ground_df['total_energy'].min())),
                            np.log10(max(1.0, ground_df['total_energy'].max())), 50)
 
-        # Calculate mean energies for legend
+        # Calculate mean energies for legend in the graph
         mean_em_energy = em_ground['total_energy'].mean() if not em_ground.empty else 0
         mean_mu_energy = mu_ground['total_energy'].mean() if not mu_ground.empty else 0
 
@@ -229,14 +229,14 @@ def plot_muon_em_ratio(df, num_showers, filename):
     plt.axvline(SIMULATION_GROUND_DEPTH, color='gray', linestyle='-.',
                 label=f'Sim Ground Depth ({SIMULATION_GROUND_DEPTH:.1f} g/cm²)')
 
-    # --- Add annotation for spike ---
-    # Find the last valid point before the ground
+    #  Adding annotation where there is a spike 
+
     valid_ratio_points = ratio[bin_centers < SIMULATION_GROUND_DEPTH * 0.98]
     if len(valid_ratio_points) > 0:
         last_valid_idx = len(valid_ratio_points) - 1
         last_bin_center = bin_centers[last_valid_idx]
 
-        # Annotate the spike
+        # point the spike the spike
         spike_idx = np.nanargmax(ratio)
         if spike_idx > last_valid_idx:
             plt.annotate('Ratio spikes as\nEM component vanishes',
@@ -257,7 +257,7 @@ def plot_muon_em_ratio(df, num_showers, filename):
     print(f"  - Saved {filename}")
 
 
-# =========================== Main Analysis Function ===========================
+# =========================== Main analysis function ===========================
 
 def analyze_shower_data(filename):
     """Reads a shower data CSV and generates all plots and summaries."""
@@ -290,7 +290,7 @@ def analyze_shower_data(filename):
     print("\nAnalysis complete. Plots have been saved as high-quality PNG files.")
 
 
-# =========================== Execution Block ===========================
+# =========================== Exececuting the programn ===========================
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -299,4 +299,5 @@ if __name__ == "__main__":
     else:
         print("Usage: python analyze_shower_data.py <filename.csv>")
         print("Example: python analyze_shower_data.py shower_data_100GeV_1000runs.csv")
+
 
